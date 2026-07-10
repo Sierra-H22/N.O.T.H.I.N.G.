@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>N.O.T.H.I.N.G. — NEXT GEN</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --amber:#b8983a;
+    --amber-bright:#d8b84a;
+    --amber-dim:#5a4a2a;
+    --orange:#a86a2a;
+    --void:#07080a;
+    --void-deep:#030405;
+    --steel:#4a525a;
+    --steel-bright:#6a727a;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--void-deep);font-family:'JetBrains Mono','Courier New',monospace;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;}
+
+  /* ===== БЕЗОПАСНЫЙ BLUR ===== */
+  .blur-safe{backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}
+
+  /* ===== ФОН ===== */
+  .bg-layer{position:fixed;inset:-10%;pointer-events:none;}
+  #bgFar{background:radial-gradient(ellipse 40% 60% at 15% 30%,rgba(74,82,90,0.3),transparent 60%),radial-gradient(ellipse 30% 50% at 85% 70%,rgba(74,82,90,0.2),transparent 60%),linear-gradient(180deg,#0b0d10 0%,#050607 60%,#030405 100%);animation:driftFar 40s ease-in-out infinite alternate;will-change:transform;}
+  #bgNear{background-image:repeating-linear-gradient(90deg,transparent 0px,transparent 140px,rgba(184,152,58,0.03) 140px,rgba(184,152,58,0.03) 142px,transparent 142px,transparent 280px);animation:driftNear 26s ease-in-out infinite alternate;will-change:transform;}
+  @keyframes driftFar{0%{transform:translate(0,0) scale(1.05);}100%{transform:translate(-1.5%,1%) scale(1.08);}}
+  @keyframes driftNear{0%{transform:translate(0,0);}100%{transform:translate(-2.5%,0.5%);}}
+
+  /* ===== СВЕТОВЫЕ ШАХТЫ ===== */
+  .shaft{position:fixed;top:-20%;width:2px;height:140%;background:linear-gradient(180deg,transparent,rgba(184,152,58,0.05) 40%,rgba(184,152,58,0.08) 50%,rgba(184,152,58,0.05) 60%,transparent);pointer-events:none;}
+
+  /* ===== CRT ЭФФЕКТЫ ===== */
+  .vignette{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,0.7) 100%);z-index:5;}
+  .noise{position:fixed;inset:0;pointer-events:none;opacity:0.035;z-index:6;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+  .scanlines{position:fixed;inset:0;pointer-events:none;z-index:6;background:repeating-linear-gradient(to bottom,rgba(255,255,255,0.015) 0px,rgba(255,255,255,0.015) 1px,transparent 1px,transparent 3px);}
+  .scan-beam{position:fixed;inset:0;pointer-events:none;z-index:7;background:linear-gradient(to bottom,transparent 40%,rgba(184,152,58,0.04) 50%,transparent 60%);animation:scanMove 4s ease-in-out infinite;}
+  @keyframes scanMove{0%{transform:translateY(-100%);}100%{transform:translateY(100%);}}
+
+  /* ===== ВЫПУКЛОСТЬ ===== */
+  .stage-wrap{position:fixed;inset:0;transform:perspective(600px) rotateX(1.2deg) rotateY(-0.6deg);transition:transform 0.1s;}
+
+  /* ===== МИКРОДРОЖЬ ===== */
+  .micro-shake{animation:microShake 6s infinite;}
+  @keyframes microShake{0%,100%{transform:translate(0,0);}50%{transform:translate(0.2px,-0.1px);}}
+
+  /* ===== БЛИКИ СТЕКЛА ===== */
+  .glass-glare{position:fixed;inset:0;pointer-events:none;z-index:8;background:radial-gradient(ellipse 60% 40% at 25% 20%,rgba(255,255,255,0.04),transparent 60%);}
+
+  /* ===== МИКРОЦАРАПИНЫ ===== */
+  .scratches{position:fixed;inset:0;pointer-events:none;z-index:8;opacity:0.03;background-image:repeating-linear-gradient(45deg,transparent,transparent 120px,rgba(255,255,255,0.02) 120px,rgba(255,255,255,0.02) 121px,transparent 121px,transparent 122px);}
+
+  /* ===== СТРУКТУРА ЛЮМИНОФОРА ===== */
+  .rgb-mask{position:fixed;inset:0;pointer-events:none;z-index:8;opacity:0.02;background-image:repeating-linear-gradient(90deg,rgba(255,0,0,0.02) 0px,rgba(0,255,0,0.02) 2px,rgba(0,0,255,0.02) 4px,transparent 6px,transparent 8px);background-size:8px 100%;}
+
+  /* ===== СЛЕДЫ ЭКСПЛУАТАЦИИ ===== */
+  .dust{position:fixed;inset:0;pointer-events:none;z-index:8;opacity:0.015;background-image:radial-gradient(circle at 20% 30%,rgba(255,255,255,0.02) 0%,transparent 40%),radial-gradient(circle at 80% 70%,rgba(255,255,255,0.015) 0%,transparent 30%),radial-gradient(circle at 50% 10%,rgba(255,255,255,0.01) 0%,transparent 20%);}
+
+  /* ===== ФОСФОРНОЕ СВЕЧЕНИЕ ===== */
+  .phosphor{text-shadow:0 0 12px rgba(184,152,58,0.4),0 0 24px rgba(184,152,58,0.15),0 0 48px rgba(184,152,58,0.05);}
+
+  /* ===== ОСТАТОЧНОЕ СВЕЧЕНИЕ (GHOSTING) ===== */
+  .ghost{transition:opacity 0.6s ease,text-shadow 0.6s ease;}
+  .ghost.fade-out{opacity:0;text-shadow:0 0 40px rgba(184,152,58,0.1);}
+
+  /* ===== ВЕРХНЯЯ ПАНЕЛЬ ===== */
+  .top-bar{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:12px 24px;background:rgba(3,4,5,0.7);border-bottom:1px solid rgba(74,82,90,0.15);opacity:0;animation:fadeIn 1.5s ease-out forwards 0.8s;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}
+  .top-bar .node{font-size:8px;letter-spacing:2px;color:var(--steel);}
+  .top-bar .node span{color:var(--amber);}
+  .top-bar .version{font-size:8px;letter-spacing:1.5px;color:var(--steel);}
+  .top-bar .version span{color:var(--steel-bright);}
+
+  /* ===== ЛОГОТИПЫ ===== */
+  .logo-wrap{display:flex;gap:8px;align-items:center;opacity:0;animation:fadeIn 1.8s ease-out forwards 1.2s;}
+  .logo-wrap .label{font-size:7px;letter-spacing:2px;color:var(--steel);}
+
+  /* ===== КОНТЕЙНЕР ЛОГОТИПОВ ===== */
+  .logo-container{display:flex;gap:16px;align-items:center;}
+
+  /* ===== ГЕКСАГОН ===== */
+  .hex{width:28px;height:32px;fill:none;stroke:var(--amber);stroke-width:1.8;filter:drop-shadow(0 0 8px rgba(184,152,58,0.2));}
+
+  /* ===== КОНТУР + ТОЧКА ===== */
+  .dot-contour{width:28px;height:32px;fill:none;stroke:var(--amber);stroke-width:1.8;}
+  .dot-contour .dot{fill:var(--amber-bright);opacity:0.6;}
+
+  /* ===== КРАСНЫЙ МОЗГ ===== */
+  .red-brain{width:28px;height:32px;fill:none;stroke:#8a3a3a;stroke-width:1.8;opacity:0.7;}
+
+  /* ===== ЦЕНТРАЛЬНЫЙ ЛОГОТИП (ОСНОВНОЙ) ===== */
+  .sigil{width:72px;height:auto;opacity:0;animation:fadeIn 2.2s ease-out forwards 0.3s;filter:drop-shadow(0 0 20px rgba(184,152,58,0.25));}
+  .sigil-tri{fill:none;stroke:var(--amber);stroke-width:2.6;stroke-dasharray:400;stroke-dashoffset:400;animation:drawTri 2.8s ease-in-out forwards 0.3s;}
+  .sigil-eye{fill:var(--amber-bright);opacity:0;animation:fadeIn 0.8s ease-out forwards 2.4s;filter:drop-shadow(0 0 12px rgba(216,184,74,0.4));}
+
+  /* ===== ТЕКСТ ===== */
+  .stage{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;text-align:center;}
+  .title{font-size:14px;letter-spacing:10px;color:var(--amber-bright);font-weight:400;opacity:0;animation:fadeIn 1.6s ease-out forwards 2.9s;text-shadow:0 0 20px rgba(216,184,74,0.15),0 0 40px rgba(184,152,58,0.05);}
+  .subtitle{font-size:9.5px;letter-spacing:4px;color:var(--steel-bright);opacity:0;animation:fadeIn 1.6s ease-out forwards 3.5s;}
+  .status-line{margin-top:6px;font-size:9px;letter-spacing:2px;color:var(--steel);opacity:0;animation:fadeIn 1.6s ease-out forwards 4.4s;display:flex;align-items:center;gap:8px;}
+  .status-dot{width:5px;height:5px;border-radius:50%;background:#5a8a5a;box-shadow:0 0 8px rgba(90,138,90,0.4);animation:dotPulse 2.4s ease-in-out infinite;}
+  @keyframes dotPulse{0%,100%{opacity:0.5;}50%{opacity:1;}}
+  .tap-hint{margin-top:20px;font-size:8.5px;letter-spacing:3px;color:#4a525a;opacity:0;animation:fadeIn 1.8s ease-out forwards 5.6s,hintPulse 2s ease-in-out infinite 5.6s;}
+  @keyframes hintPulse{0%,100%{opacity:0.4;}50%{opacity:0.85;}}
+  @keyframes fadeIn{to{opacity:1;}}
+  @keyframes drawTri{to{stroke-dashoffset:0;}}
+
+  /* ===== ПЕРЕКЛЮЧАТЕЛЬ ЗВУКА (ТЕРМИНАЛЬНЫЙ) ===== */
+  .audio-toggle{position:fixed;bottom:20px;right:24px;z-index:40;font-size:8px;letter-spacing:2px;color:var(--steel);cursor:pointer;opacity:0;animation:fadeIn 1.8s ease-out forwards 5s;display:flex;align-items:center;gap:8px;padding:4px 10px;border:1px solid rgba(74,82,90,0.15);background:rgba(3,4,5,0.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}
+  .audio-toggle .status{color:var(--amber);}
+  .audio-toggle .status.off{color:#5a3a3a;}
+
+  /* ===== ГЛИТЧ ===== */
+  .glitch-flash{position:fixed;inset:0;z-index:30;pointer-events:none;opacity:0;}
+  .glitch-flash.active{animation:flashBurst 180ms steps(2,end);}
+  @keyframes flashBurst{0%{opacity:0;}20%{opacity:1;background:linear-gradient(90deg,rgba(184,152,58,0.1),transparent 40%,rgba(184,152,58,0.06) 80%);clip-path:inset(20% 0 55% 0);}50%{opacity:1;background:linear-gradient(90deg,rgba(184,152,58,0.06),transparent 50%,rgba(184,152,58,0.1) 85%);clip-path:inset(60% 0 10% 0);}100%{opacity:0;}}
+
+  .exit-flash{position:fixed;inset:0;z-index:50;background:#000;opacity:0;pointer-events:none;}
+  .exit-flash.active{animation:exitFade 0.6s ease-in forwards;}
+  @keyframes exitFade{to{opacity:1;}}
+
+  .stage-wrap.glitching{animation:glitchShake 180ms steps(3,end);filter:blur(1.5px);}
+  @keyframes glitchShake{0%{transform:translateX(0);filter:blur(0);}30%{transform:translateX(-4px);filter:blur(2px) hue-rotate(4deg);}60%{transform:translateX(4px);filter:blur(1px) hue-rotate(-3deg);}100%{transform:translateX(0);filter:blur(0);}}
+
+  /* ===== АДАПТИВ ===== */
+  @media(max-width:480px){
+    .top-bar{padding:8px 14px;flex-wrap:wrap;gap:4px;}
+    .top-bar .node{font-size:6px;}
+    .top-bar .version{font-size:6px;}
+    .sigil{width:56px;}
+    .title{font-size:12px;letter-spacing:6px;}
+    .subtitle{font-size:8px;letter-spacing:2px;}
+    .stage{gap:8px;}
+    .audio-toggle{font-size:7px;padding:2px 8px;bottom:14px;right:14px;}
+    .hex{width:20px;height:24px;}
+    .dot-contour{width:20px;height:24px;}
+    .red-brain{width:20px;height:24px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== ФОН ===== -->
+<div class="bg-layer" id="bgFar"></div>
+<div class="bg-layer" id="bgNear"></div>
+<div class="shaft" style="left:15%;"></div>
+<div class="shaft" style="left:78%;"></div>
+<div class="shaft" style="left:45%;opacity:0.5;"></div>
+
+<!-- ===== CRT ===== -->
+<div class="vignette"></div>
+<div class="noise"></div>
+<div class="scanlines"></div>
+<div class="scan-beam"></div>
+<div class="glass-glare"></div>
+<div class="scratches"></div>
+<div class="dust"></div>
+<div class="rgb-mask"></div>
+
+<!-- ===== ОСНОВНОЙ КОНТЕЙНЕР ===== -->
+<div class="stage-wrap" id="stageWrap">
+  <div class="micro-shake">
+
+    <!-- ===== ВЕРХНЯЯ ПАНЕЛЬ ===== -->
+    <div class="top-bar">
+      <div class="node">NODE <span>07</span></div>
+      <div class="logo-container">
+        <div class="logo-wrap">
+          <svg class="hex" viewBox="0 0 40 44">
+            <polygon points="20,4 36,14 36,34 20,44 4,34 4,14"/>
+          </svg>
+          <span class="label">HEX</span>
+        </div>
+        <div class="logo-wrap">
+          <svg class="dot-contour" viewBox="0 0 40 44">
+            <polygon points="20,4 36,14 36,34 20,44 4,34 4,14"/>
+            <circle class="dot" cx="20" cy="24" r="4"/>
+          </svg>
+          <span class="label">CORE</span>
+        </div>
+        <div class="logo-wrap">
+          <svg class="red-brain" viewBox="0 0 40 44">
+            <path d="M20,6 Q34,14 28,28 Q20,38 12,28 Q6,14 20,6"/>
+            <circle cx="20" cy="22" r="3" fill="#8a3a3a" opacity="0.3"/>
+          </svg>
+          <span class="label">BRAIN</span>
+        </div>
+      </div>
+      <div class="version">BUILD <span>0.22</span> // TERMINAL <span>07</span></div>
+    </div>
+
+    <!-- ===== ЦЕНТРАЛЬНЫЙ ЭКРАН ===== -->
+    <div class="stage" onclick="enterTerminal()">
+
+      <!-- ===== ОСНОВНОЙ ЛОГОТИП ===== -->
+      <svg class="sigil" viewBox="0 0 100 115">
+        <polygon class="sigil-tri" points="50,12 94,106 6,106"/>
+        <circle class="sigil-eye" cx="50" cy="70" r="7"/>
+      </svg>
+
+      <div class="title phosphor">N.O.T.H.I.N.G. FOUNDATION</div>
+      <div class="subtitle">ВНУТРЕННЯЯ ИНФОРМАЦИОННАЯ СИСТЕМА</div>
+      <div class="status-line"><span class="status-dot"></span>КАНАЛ СВЯЗИ АКТИВЕН</div>
+      <div class="tap-hint">[ НАЖМИТЕ ДЛЯ ПОДКЛЮЧЕНИЯ ]</div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== ГЛИТЧ И ПЕРЕХОД ===== -->
+<div class="glitch-flash" id="glitchFlash"></div>
+<div class="exit-flash" id="exitFlash"></div>
+
+<!-- ===== АУДИО ПЕРЕКЛЮЧАТЕЛЬ ===== -->
+<div class="audio-toggle" id="soundToggle">
+  <span>AUDIO</span>
+  <span class="status" id="soundStatus">●</span>
+  <span>::</span>
+  <span id="soundLabel">ENABLED</span>
+</div>
+
+<script>
+  // ============================================================
+  // 1. SFX ENGINE (безопасный)
+  // ============================================================
+  const SFX = {
+    ctx: null, limiter: null, ambientOn: false, muted: false, masterGain: null,
+    ensureCtx() {
+      if (!this.ctx) {
+        try {
+          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+          this.limiter = this.ctx.createDynamicsCompressor();
+          this.limiter.threshold.value = -18; this.limiter.knee.value = 12;
+          this.limiter.ratio.value = 14; this.limiter.attack.value = 0.002;
+          this.limiter.release.value = 0.15;
+          this.limiter.connect(this.ctx.destination);
+        } catch(e){ return null; }
+      }
+      if (this.ctx && this.ctx.state === 'suspended') {
+        try { this.ctx.resume(); } catch(e){}
+      }
+      return this.ctx;
+    },
+    startAmbient() {
+      if (this.ambientOn) return;
+      const ctx = this.ensureCtx();
+      if (!ctx) return;
+      this.ambientOn = true;
+
+      const master = ctx.createGain();
+      master.gain.value = this.muted ? 0 : 0.9;
+      master.connect(this.limiter);
+      this.masterGain = master;
+
+      const o1 = ctx.createOscillator(); o1.type='sine'; o1.frequency.value=52;
+      const o2 = ctx.createOscillator(); o2.type='sine'; o2.frequency.value=55.5;
+      const hum = ctx.createGain(); hum.gain.value=0.016;
+      o1.connect(hum); o2.connect(hum); hum.connect(master);
+      o1.start(); o2.start();
+
+      const nSize = ctx.sampleRate * 2;
+      const nBuf = ctx.createBuffer(1, nSize, ctx.sampleRate);
+      const nd = nBuf.getChannelData(0);
+      for (let i=0; i<nSize; i++) nd[i] = Math.random() * 2 - 1;
+      const nSrc = ctx.createBufferSource(); nSrc.buffer = nBuf; nSrc.loop = true;
+      const nFilt = ctx.createBiquadFilter(); nFilt.type='lowpass'; nFilt.frequency.value=260;
+      const nGain = ctx.createGain(); nGain.gain.value=0.011;
+      nSrc.connect(nFilt); nFilt.connect(nGain); nGain.connect(master);
+      nSrc.start();
+
+      this._crackleTimer = setInterval(() => {
+        if (!this.muted && Math.random() < 0.25) this.crackle();
+      }, 5000);
+    },
+    crackle() {
+      const ctx = this.ensureCtx(); if (!ctx) return;
+      const dur = 0.06 + Math.random() * 0.06;
+      const size = ctx.sampleRate * dur;
+      const buf = ctx.createBuffer(1, size, ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i=0; i<size; i++) d[i] = (Math.random() * 2 - 1) * (1 - i/size);
+      const src = ctx.createBufferSource(); src.buffer = buf;
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.035, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
+      src.connect(gain); gain.connect(this.limiter);
+      src.start();
+    },
+    glitchZap() {
+      if (this.muted) return;
+      const ctx = this.ensureCtx(); if (!ctx) return;
+      const osc = ctx.createOscillator();
+      osc.type='square';
+      osc.frequency.setValueAtTime(1600, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(90, ctx.currentTime + 0.1);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.045, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.11);
+      osc.connect(g); g.connect(this.limiter);
+      osc.start(); osc.stop(ctx.currentTime + 0.11);
+    },
+    exitCrash() {
+      const ctx = this.ensureCtx(); if (!ctx) return;
+      if (this.masterGain) {
+        try { this.masterGain.gain.setTargetAtTime(0, ctx.currentTime, 0.15); } catch(e){}
+      }
+      const size = ctx.sampleRate * 0.5;
+      const buf = ctx.createBuffer(1, size, ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i=0; i<size; i++) d[i] = Math.random() * 2 - 1;
+      const src = ctx.createBufferSource(); src.buffer = buf;
+      const filt = ctx.createBiquadFilter(); filt.type='bandpass'; filt.frequency.value=1100;
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.07, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+      src.connect(filt); filt.connect(gain); gain.connect(this.limiter);
+      src.start();
+      const osc = ctx.createOscillator();
+      osc.type='sawtooth';
+      osc.frequency.setValueAtTime(80, ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(28, ctx.currentTime + 0.5);
+      const og = ctx.createGain();
+      og.gain.setValueAtTime(0.09, ctx.currentTime);
+      og.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+      osc.connect(og); og.connect(this.limiter);
+      osc.start(); osc.stop(ctx.currentTime + 0.5);
+    },
+    toggleMute() {
+      this.muted = !this.muted;
+      if (this.masterGain) {
+        try { this.masterGain.gain.setTargetAtTime(this.muted ? 0 : 0.9, this.ctx.currentTime, 0.05); } catch(e){}
+      }
+      return this.muted;
+    }
+  };
+
+  // ============================================================
+  // 2. АКТИВАЦИЯ ЗВУКА
+  // ============================================================
+  let soundActivated = false;
+  function activateSound() {
+    if (soundActivated) return;
+    soundActivated = true;
+    SFX.ensureCtx();
+    SFX.startAmbient();
+  }
+  document.addEventListener('click', activateSound, { once: true, capture: true });
+  document.addEventListener('touchstart', activateSound, { once: true, capture: true });
+
+  // ============================================================
+  // 3. АУДИО ПЕРЕКЛЮЧАТЕЛЬ
+  // ============================================================
+  document.getElementById('soundToggle').addEventListener('click', (e) => {
+    e.stopPropagation();
+    SFX.ensureCtx();
+    const muted = SFX.toggleMute();
+    const status = document.getElementById('soundStatus');
+    const label = document.getElementById('soundLabel');
+    if (muted) {
+      status.textContent = '○';
+      status.className = 'status off';
+      label.textContent = 'DISABLED';
+    } else {
+      status.textContent = '●';
+      status.className = 'status';
+      label.textContent = 'ENABLED';
+    }
+  });
+
+  // ============================================================
+  // 4. ГЛИТЧ-ВСПЫШКИ
+  // ============================================================
+  function triggerGlitchBurst() {
+    const wrap = document.getElementById('stageWrap');
+    const flash = document.getElementById('glitchFlash');
+    wrap.classList.add('glitching');
+    flash.classList.remove('active');
+    void flash.offsetWidth;
+    flash.classList.add('active');
+    SFX.glitchZap();
+    setTimeout(() => wrap.classList.remove('glitching'), 180);
+  }
+  function scheduleGlitch() {
+    const delay = 5000 + Math.random() * 4000;
+    setTimeout(() => { triggerGlitchBurst(); scheduleGlitch(); }, delay);
+  }
+  scheduleGlitch();
+
+// ============================================================
+  // 5. ПЕРЕХОД
+  // ============================================================
+  let entering = false;
+  function enterTerminal() {
+    if (entering) return;
+    entering = true;
+    triggerGlitchBurst();
+    SFX.exitCrash();
+    document.getElementById('exitFlash').classList.add('active');
+    setTimeout(() => {
+      document.querySelector('.stage').innerHTML = `
+        <div style="color:#6a7280;font-size:10px;letter-spacing:3px;text-align:center;line-height:2.2;max-width:400px;">
+          <span style="color:#b8983a;font-weight:bold;text-shadow:0 0 20px rgba(184,152,58,0.15);">N.O.T.H.I.N.G. FOUNDATION</span><br>
+          <span style="color:#2a2f36;">СЕТЕВОЙ ТЕРМИНАЛ ЗАКРЫТ</span><br>
+          <span style="color:#8a6a3a;font-size:8px;letter-spacing:1px;font-weight:bold;margin-top:12px;display:block;">[ ТРАНСЛЯЦИЯ ПЕРЕХВАТИТСЯ В ТГК ]</span><br>
+          <span style="color:#2a2f36;font-size:7px;letter-spacing:1px;display:block;">Ждите прибытия хладагента...</span>
+        </div>
+      `;
+    }, 600);
+  }
+</script>
+</body>
+</html>

@@ -91,7 +91,7 @@ html,body{
 }
 .fx-noise{
   position:absolute; inset:0; z-index:73; pointer-events:none; opacity:0.05;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctav[...] ");
   animation:noiseShift 0.5s steps(3) infinite;
 }
 @keyframes noiseShift{
@@ -218,11 +218,22 @@ html,body{
         <div class="content">
           <!-- Здесь будут все секции (home, archive и т.д.) -->
           <!-- Я сократил, чтобы не делать часть слишком длинной. Скажи, если нужно продолжить -->
-          <script>
+
+          <!-- CHAT PANE -->
+          <div id="chatPane" style="padding:12px; display:block;">
+            <div id="chatMessages" style="height:260px; overflow:auto; background:#020101; padding:8px; border:1px solid rgba(255,180,0,0.08); color:var(--phosphor);"></div>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+              <input id="chatInput" type="text" placeholder="Сообщение..." style="flex:1; padding:8px; color:var(--phosphor); background:transparent; border:1px solid rgba(255,180,0,0.06);">
+              <button id="chatSend">Отправить</button>
+            </div>
+          </div>
+
+        <script>
 // ================= FIREBASE CONFIG =================
 const firebaseConfig = {
   apiKey: "AIzaSyDkiZ1W8S5n6CaW7tn5nZLAeJGdK6dKc",
   authDomain: "nothing-foundation.firebaseapp.com",
+  databaseURL: "https://nothing-foundation-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "nothing-foundation",
   storageBucket: "nothing-foundation.firebasestorage.app",
   messagingSenderId: "5248566685105",
@@ -241,7 +252,7 @@ function saveToFirebase(path, data) {
     .then(() => console.log("Сохранено в Firebase"))
     .catch(err => console.error("Ошибка Firebase:", err));
 }
-          </script>
+</script>
           <script>
 // ================= BASIC VARIABLES =================
 let currentUser = null;
@@ -329,8 +340,58 @@ document.getElementById('loginSubmit').addEventListener('click', () => {
 // ================= PROFILE =================
 function updateProfile() {
   if (!currentUser) return;
-  document.getElementById('profileLogin').textContent = currentUser;
-  document.getElementById('profileSessionStart').textContent = sessionStartTime ? sessionStartTime.toLocaleTimeString('ru-RU') : '—';
+  // профильные элементы могут отсутствовать в сокращённой разметке
+  const pLogin = document.getElementById('profileLogin');
+  const pStart = document.getElementById('profileSessionStart');
+  if (pLogin) pLogin.textContent = currentUser;
+  if (pStart) pStart.textContent = sessionStartTime ? sessionStartTime.toLocaleTimeString('ru-RU') : '—';
+}
+
+// ================= CHAT (Realtime DB) =================
+// Путь в БД
+const chatPath = 'chats/general/messages';
+const messagesRef = database.ref(chatPath);
+
+function sendMessage(text) {
+  if (!text || !currentUser) return;
+  const msg = { user: currentUser, text: text, ts: Date.now() };
+  messagesRef.push(msg)
+    .then(()=> {
+      document.getElementById('chatInput').value = '';
+      console.log('msg sent');
+    })
+    .catch(err => console.error('Ошибка записи в БД:', err));
+}
+
+// Слушаем новые сообщения
+messagesRef.limitToLast(200).on('child_added', snapshot => {
+  const m = snapshot.val();
+  appendMessage(m);
+});
+
+function appendMessage(m) {
+  const wrap = document.getElementById('chatMessages');
+  if (!wrap) return;
+  const el = document.createElement('div');
+  const time = m && m.ts ? new Date(m.ts).toLocaleTimeString('ru-RU') : '';
+  el.innerHTML = `<strong>${escapeHtml(m.user || 'anon')}</strong> <small style="color:#666">[${time}]</small>: ${escapeHtml(m.text || '')}`;
+  wrap.appendChild(el);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function escapeHtml(s){ return String(s).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// UI hooks
+const chatSendBtn = document.getElementById('chatSend');
+if (chatSendBtn) {
+  chatSendBtn.addEventListener('click', () => {
+    const text = document.getElementById('chatInput').value.trim();
+    if (text) sendMessage(text);
+  });
+}
+const chatInputEl = document.getElementById('chatInput');
+if (chatInputEl) {
+  chatInputEl.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); chatSendBtn && chatSendBtn.click(); }});
 }
 
 // ================= INIT =================

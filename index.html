@@ -300,10 +300,12 @@ function bootSequence() {
   next();
 }
 
-document.getElementById('bootTap').addEventListener('click', () => {
+
+document.getElementById('bootTap').addEventListener('click', function activateTerminal() {
   SFX.click();
   document.getElementById('boot').classList.remove('active');
   document.getElementById('login').classList.add('active');
+  this.removeEventListener('click', activateTerminal); // чтобы не кликалось повторно
 });
 
 // ================= LOGIN =================
